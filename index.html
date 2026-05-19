@@ -138,6 +138,47 @@
       border-color: var(--input-focus);
       background: rgba(255,255,255,0.06);
     }
+    .field input.error {
+      border-color: rgba(220, 80, 80, 0.7);
+    }
+    .field-error {
+      font-size: 11px;
+      color: #e07070;
+      margin-top: 5px;
+      display: none;
+    }
+    .field-error.visible { display: block; }
+
+    /* Phone row with country code */
+    .phone-row {
+      display: flex;
+      gap: 8px;
+    }
+    .phone-row select {
+      flex: 0 0 auto;
+      width: 110px;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 3px;
+      padding: 14px 10px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a8070'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    .phone-row select:focus {
+      border-color: var(--input-focus);
+      background-color: rgba(255,255,255,0.06);
+    }
+    .phone-row select option { background: #1a1810; color: var(--text); }
+    .phone-row input { flex: 1; }
 
     .btn {
       width: 100%;
@@ -237,13 +278,50 @@
       </div>
       <span class="form-label">Fill out the information below</span>
       <div class="field">
-        <input type="text" id="f-name" placeholder="Full Name" required autocomplete="name">
+        <input type="text" id="f-name" placeholder="Full Name" autocomplete="name">
+        <div class="field-error" id="err-name">Please enter your full name.</div>
       </div>
       <div class="field">
-        <input type="email" id="f-email" placeholder="Email Address" required autocomplete="email">
+        <input type="email" id="f-email" placeholder="Email Address" autocomplete="email">
+        <div class="field-error" id="err-email">Please enter a valid email address.</div>
       </div>
       <div class="field">
-        <input type="tel" id="f-phone" placeholder="Phone Number" required autocomplete="tel">
+        <div class="phone-row">
+          <select id="f-country">
+            <option value="+1">🇺🇸 +1</option>
+            <option value="+1-CA">🇨🇦 +1</option>
+            <option value="+44">🇬🇧 +44</option>
+            <option value="+61">🇦🇺 +61</option>
+            <option value="+64">🇳🇿 +64</option>
+            <option value="+353">🇮🇪 +353</option>
+            <option value="+27">🇿🇦 +27</option>
+            <option value="+91">🇮🇳 +91</option>
+            <option value="+49">🇩🇪 +49</option>
+            <option value="+33">🇫🇷 +33</option>
+            <option value="+34">🇪🇸 +34</option>
+            <option value="+39">🇮🇹 +39</option>
+            <option value="+31">🇳🇱 +31</option>
+            <option value="+46">🇸🇪 +46</option>
+            <option value="+47">🇳🇴 +47</option>
+            <option value="+45">🇩🇰 +45</option>
+            <option value="+358">🇫🇮 +358</option>
+            <option value="+55">🇧🇷 +55</option>
+            <option value="+52">🇲🇽 +52</option>
+            <option value="+57">🇨🇴 +57</option>
+            <option value="+54">🇦🇷 +54</option>
+            <option value="+56">🇨🇱 +56</option>
+            <option value="+63">🇵🇭 +63</option>
+            <option value="+65">🇸🇬 +65</option>
+            <option value="+60">🇲🇾 +60</option>
+            <option value="+62">🇮🇩 +62</option>
+            <option value="+82">🇰🇷 +82</option>
+            <option value="+81">🇯🇵 +81</option>
+            <option value="+971">🇦🇪 +971</option>
+            <option value="+966">🇸🇦 +966</option>
+          </select>
+          <input type="tel" id="f-phone" placeholder="Phone Number" autocomplete="tel">
+        </div>
+        <div class="field-error" id="err-phone">Please enter a valid phone number (digits only, 6–15 digits).</div>
       </div>
       <button class="btn" id="submit-btn" onclick="handleSubmit()">Submit</button>
     </div>
@@ -265,11 +343,48 @@
   </div>
 
   <script>
+    function setError(fieldId, errId, show) {
+      var input = document.getElementById(fieldId);
+      var err = document.getElementById(errId);
+      if (show) {
+        input.classList.add('error');
+        err.classList.add('visible');
+      } else {
+        input.classList.remove('error');
+        err.classList.remove('visible');
+      }
+    }
+
+    function isValidEmail(val) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val);
+    }
+
+    function isValidPhone(val) {
+      var digits = val.replace(/[\s\-().+]/g, '');
+      return /^\d{6,15}$/.test(digits);
+    }
+
+    // Clear errors on input
+    document.getElementById('f-name').addEventListener('input', function() { setError('f-name','err-name',false); });
+    document.getElementById('f-email').addEventListener('input', function() { setError('f-email','err-email',false); });
+    document.getElementById('f-phone').addEventListener('input', function() { setError('f-phone','err-phone',false); });
+
     function handleSubmit() {
       var name = document.getElementById('f-name').value.trim();
       var email = document.getElementById('f-email').value.trim();
       var phone = document.getElementById('f-phone').value.trim();
-      if (!name || !email || !phone) return;
+      var country = document.getElementById('f-country').value;
+
+      var valid = true;
+      if (!name) { setError('f-name','err-name',true); valid = false; }
+      if (!isValidEmail(email)) { setError('f-email','err-email',true); valid = false; }
+      if (!isValidPhone(phone)) { setError('f-phone','err-phone',true); valid = false; }
+      if (!valid) return;
+
+      // Normalize country code (Canada shares +1)
+      var dialCode = country === '+1-CA' ? '+1' : country;
+      var digits = phone.replace(/[\s\-().]/g, '');
+      var fullPhone = dialCode + digits;
 
       var btn = document.getElementById('submit-btn');
       btn.disabled = true;
@@ -278,7 +393,7 @@
       fetch('/api/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name, email: email, phone: phone })
+        body: JSON.stringify({ name: name, email: email, phone: fullPhone })
       }).catch(function() {});
 
       var optin = document.getElementById('s-optin');
